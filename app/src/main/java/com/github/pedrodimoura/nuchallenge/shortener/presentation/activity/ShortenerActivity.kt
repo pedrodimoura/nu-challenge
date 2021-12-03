@@ -6,9 +6,11 @@ import android.util.Patterns
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.asLiveData
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.pedrodimoura.nuchallenge.R
 import com.github.pedrodimoura.nuchallenge.common.presentation.ext.hideKeyboard
 import com.github.pedrodimoura.nuchallenge.databinding.ActivityShortenerBinding
+import com.github.pedrodimoura.nuchallenge.shortener.presentation.adapter.ShortenedUrlsAdapter
 import com.github.pedrodimoura.nuchallenge.shortener.presentation.state.ShortenerUIState
 import com.github.pedrodimoura.nuchallenge.shortener.presentation.vm.ShortenerViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -24,20 +26,32 @@ class ShortenerActivity : AppCompatActivity() {
 
     private val viewModel: ShortenerViewModel by viewModels()
 
+    private val shortenedUrlsAdapter: ShortenedUrlsAdapter by lazy { ShortenedUrlsAdapter() }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(binding.root)
+        setupView()
         observeStateChanges()
         setupListeners()
         getRecentlyShortenedUrls()
+    }
+
+    private fun setupView() {
+        setContentView(binding.root)
+        with(binding.rvRecentlyShortenedUrls) {
+            layoutManager = LinearLayoutManager(this@ShortenerActivity)
+            adapter = shortenedUrlsAdapter
+        }
     }
 
     private fun observeStateChanges() {
         viewModel.uiState.asLiveData().observe(this) { uiState ->
             when (uiState) {
                 is ShortenerUIState.FetchingRecentlyShortenedUrls -> logcat("Loading")
-                is ShortenerUIState.RecentlyShortenedUrlsFetched ->
+                is ShortenerUIState.RecentlyShortenedUrlsFetched -> {
                     logcat("Success: ${uiState.recentlyShortened}")
+                    shortenedUrlsAdapter.submitList(uiState.recentlyShortened)
+                }
                 is ShortenerUIState.Failure -> logcat("Failure ${uiState.message}")
                 is ShortenerUIState.ShortingUrl -> logcat("Shorting Url")
                 is ShortenerUIState.UrlShorted -> viewModel.save(uiState.shortUrlModel)
