@@ -2,9 +2,12 @@ package com.github.pedrodimoura.nuchallenge.shortener.presentation.activity
 
 import android.os.Bundle
 import android.util.Log
+import android.util.Patterns
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.asLiveData
+import com.github.pedrodimoura.nuchallenge.R
+import com.github.pedrodimoura.nuchallenge.common.presentation.ext.hideKeyboard
 import com.github.pedrodimoura.nuchallenge.databinding.ActivityShortenerBinding
 import com.github.pedrodimoura.nuchallenge.shortener.presentation.state.ShortenerUIState
 import com.github.pedrodimoura.nuchallenge.shortener.presentation.vm.ShortenerViewModel
@@ -47,8 +50,15 @@ class ShortenerActivity : AppCompatActivity() {
 
     private fun setupListeners() {
         binding.btnShortUrl.setOnClickListener {
-            // TODO: Get URL from TextView and Call short(url) from ViewModel
-            viewModel.short("https://www.google.com.br/")
+            hideKeyboard()
+            with(binding.editTextUrlToShort) {
+                val urlToShort = text
+                when {
+                    urlToShort.isNotEmpty() and Patterns.WEB_URL.matcher(urlToShort).matches() ->
+                        viewModel.short(urlToShort.toString())
+                    else -> error = getString(R.string.shortener_wrong_url_format)
+                }
+            }
         }
     }
 
