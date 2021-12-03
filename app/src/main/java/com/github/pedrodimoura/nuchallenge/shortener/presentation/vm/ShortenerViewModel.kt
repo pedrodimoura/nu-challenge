@@ -13,10 +13,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @HiltViewModel
 class ShortenerViewModel @Inject constructor(
@@ -25,7 +25,7 @@ class ShortenerViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<ShortenerUIState> =
-        MutableStateFlow(ShortenerUIState.Idle)
+        MutableStateFlow(ShortenerUIState.Ready)
 
     val uiState: StateFlow<ShortenerUIState> = _uiState
 
@@ -33,28 +33,20 @@ class ShortenerViewModel @Inject constructor(
         viewModelScope.launch {
             shortenerRepository.getRecentShortenUrls()
                 .flowOn(dispatcher)
-                .onStart { _uiState.value = ShortenerUIState.Loading }
+                .onStart { _uiState.value = ShortenerUIState.FetchingRecentlyShortenedUrls }
                 .catch { _uiState.value = ShortenerUIState.Failure(it.message.orEmpty()) }
-                .collect {
-                    _uiState.value = ShortenerUIState.RecentlyShortenedUrlsFetched(it)
-                    _uiState.value = ShortenerUIState.Idle
-                }
+                .collect { _uiState.value = ShortenerUIState.RecentlyShortenedUrlsFetched(it) }
         }
     }
 
     fun short(url: String) {
-        viewModelScope.launch(dispatcher) {
-            _uiState.value = ShortenerUIState.ShortingUrl
-            val result = runCatching {
-                shortenerRepository.short(url)
-            }
-            withContext(Dispatchers.Main) {
-                result.onSuccess {
-                    _uiState.value = ShortenerUIState.UrlShorted
-                }.onFailure {
-                    _uiState.value = ShortenerUIState.Failure(it.message.orEmpty())
-                }
-            }
+        viewModelScope.launch {
+            flowOf(shortenerRepository.short(url))
+                .flowOn(dispatcher)
+                .onStart { _uiState.value = ShortenerUIState.ShortingUrl }
+                .catch { _uiState.value = ShortenerUIState.Failure(it.message.orEmpty()) }
+                .flowOn(Dispatchers.Main)
+                .collect { _uiState.value = ShortenerUIState.UrlShorted }
         }
     }
 }

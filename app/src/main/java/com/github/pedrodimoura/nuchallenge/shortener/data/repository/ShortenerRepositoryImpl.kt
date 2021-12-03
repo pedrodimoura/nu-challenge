@@ -11,11 +11,11 @@ import kotlinx.coroutines.flow.map
 class ShortenerRepositoryImpl @Inject constructor(
     private val shortenerLocalDatasource: ShortenerLocalDatasource,
 ) : ShortenerRepository {
-    override fun short(url: String) {
+    override suspend fun short(url: String) {
         shortenerLocalDatasource.save(ShortUrlLocalModel("aiai papai", "aiai papai", "aiai papai"))
     }
 
-    override fun getRecentShortenUrls(): Flow<List<ShortUrlModel>> =
+    override suspend fun getRecentShortenUrls(): Flow<List<ShortUrlModel>> =
         shortenerLocalDatasource.getRecentlyShortenedUrls().map {
             it.map { shortUrlLocalModel -> shortUrlLocalModel.toDomain() }
         }

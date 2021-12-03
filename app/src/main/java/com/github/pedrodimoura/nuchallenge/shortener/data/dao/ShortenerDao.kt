@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface ShortenerDao {
 
     @Insert(entity = ShortUrlLocalModel::class, onConflict = OnConflictStrategy.REPLACE)
-    fun save(shortenedUrlLocalModel: ShortUrlLocalModel)
+    suspend fun save(shortenedUrlLocalModel: ShortUrlLocalModel)
 
     @Query("SELECT * FROM short_url")
     fun getRecentlyShortenedUrls(): Flow<List<ShortUrlLocalModel>>

@@ -5,8 +5,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface ShortenerLocalDatasource {
 
-    fun save(shortUrlLocalModel: ShortUrlLocalModel)
+    suspend fun save(shortUrlLocalModel: ShortUrlLocalModel)
 
-    fun getRecentlyShortenedUrls(): Flow<List<ShortUrlLocalModel>>
+    suspend fun getRecentlyShortenedUrls(): Flow<List<ShortUrlLocalModel>>
 
 }

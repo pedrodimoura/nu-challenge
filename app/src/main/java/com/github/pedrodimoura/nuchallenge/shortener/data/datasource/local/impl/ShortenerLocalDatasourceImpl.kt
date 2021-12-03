@@ -5,13 +5,14 @@ import com.github.pedrodimoura.nuchallenge.shortener.data.datasource.local.Short
 import com.github.pedrodimoura.nuchallenge.shortener.data.datasource.local.model.ShortUrlLocalModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 class ShortenerLocalDatasourceImpl @Inject constructor(
     private val shortenerDao: ShortenerDao,
 ) : ShortenerLocalDatasource {
-    override fun save(shortUrlLocalModel: ShortUrlLocalModel) =
+    override suspend fun save(shortUrlLocalModel: ShortUrlLocalModel) =
         shortenerDao.save(shortUrlLocalModel)
 
-    override fun getRecentlyShortenedUrls(): Flow<List<ShortUrlLocalModel>> =
+    override suspend fun getRecentlyShortenedUrls(): Flow<List<ShortUrlLocalModel>> =
         shortenerDao.getRecentlyShortenedUrls()
 }

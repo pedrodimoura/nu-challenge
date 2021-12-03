@@ -25,7 +25,7 @@ class ShortenerActivity : AppCompatActivity() {
 
         viewModel.uiState.asLiveData().observe(this) { uiState ->
             when (uiState) {
-                is ShortenerUIState.Loading -> logcat("Loading")
+                is ShortenerUIState.FetchingRecentlyShortenedUrls -> logcat("Loading")
                 is ShortenerUIState.RecentlyShortenedUrlsFetched ->
                     logcat("Success: ${uiState.recentlyShortened}")
                 is ShortenerUIState.Failure -> logcat("Failure ${uiState.message}")
@@ -39,6 +39,7 @@ class ShortenerActivity : AppCompatActivity() {
 
         binding.btnShortUrl.setOnClickListener {
             // TODO: Get URL from TextView and Call short(url) from ViewModel
+            viewModel.short("Teste")
         }
     }
 
