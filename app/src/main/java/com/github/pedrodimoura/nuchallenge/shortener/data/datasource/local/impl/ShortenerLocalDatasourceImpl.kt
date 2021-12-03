@@ -5,7 +5,6 @@ import com.github.pedrodimoura.nuchallenge.shortener.data.datasource.local.Short
 import com.github.pedrodimoura.nuchallenge.shortener.data.datasource.local.model.ShortUrlLocalModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 
 class ShortenerLocalDatasourceImpl @Inject constructor(
     private val shortenerDao: ShortenerDao,
