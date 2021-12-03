@@ -4,6 +4,8 @@ import com.github.pedrodimoura.nuchallenge.common.domain.exception.Communication
 import com.github.pedrodimoura.nuchallenge.common.domain.exception.UnknownException
 import com.github.pedrodimoura.nuchallenge.shortener.data.datasource.local.ShortenerLocalDatasource
 import com.github.pedrodimoura.nuchallenge.shortener.data.datasource.local.model.ShortUrlLocalModel
+import com.github.pedrodimoura.nuchallenge.shortener.data.datasource.remote.ShortenerRemoteDatasource
+import com.github.pedrodimoura.nuchallenge.shortener.data.datasource.remote.model.ShortUrlRequestModel
 import com.github.pedrodimoura.nuchallenge.shortener.domain.model.ShortUrlModel
 import com.github.pedrodimoura.nuchallenge.shortener.domain.repository.ShortenerRepository
 import java.io.IOException
@@ -14,17 +16,30 @@ import kotlinx.coroutines.flow.map
 
 class ShortenerRepositoryImpl @Inject constructor(
     private val shortenerLocalDatasource: ShortenerLocalDatasource,
+    private val shortenerRemoteDatasource: ShortenerRemoteDatasource,
 ) : ShortenerRepository {
-    override suspend fun short(url: String) {
-        shortenerLocalDatasource.save(ShortUrlLocalModel("aiai papai", "aiai papai", "aiai papai"))
+    override suspend fun short(url: String): Flow<ShortUrlModel> {
+        return shortenerRemoteDatasource.shortUrl(ShortUrlRequestModel(url))
+            .map { ShortUrlModel(it.alias, it.links.self, it.links.short) }
+            .catch { handleShortenerRepositoryException(it) }
+    }
+
+    override suspend fun save(shortUrlModel: ShortUrlModel) {
+        runCatching {
+            shortenerLocalDatasource.save(
+                ShortUrlLocalModel(
+                    shortUrlModel.alias,
+                    shortUrlModel.originalUrl,
+                    shortUrlModel.shortUrl
+                )
+            )
+        }.onFailure { handleShortenerRepositoryException(it) }
     }
 
     override suspend fun getRecentShortenUrls(): Flow<List<ShortUrlModel>> =
         shortenerLocalDatasource.getRecentlyShortenedUrls().map {
             it.map { shortUrlLocalModel -> shortUrlLocalModel.toDomain() }
-        }.catch {
-            throw handleShortenerRepositoryException(it)
-        }
+        }.catch { handleShortenerRepositoryException(it) }
 
     private fun ShortUrlLocalModel.toDomain() =
         ShortUrlModel(
@@ -33,8 +48,8 @@ class ShortenerRepositoryImpl @Inject constructor(
             this.shortUrl
         )
 
-    private fun handleShortenerRepositoryException(throwable: Throwable): Throwable {
-        return when (throwable) {
+    private fun handleShortenerRepositoryException(throwable: Throwable) {
+        throw when (throwable) {
             is IOException -> CommunicationException()
             else -> UnknownException()
         }

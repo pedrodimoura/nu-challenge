@@ -3,13 +3,17 @@ package com.github.pedrodimoura.nuchallenge.shortener.presentation.vm
 import app.cash.turbine.test
 import com.github.pedrodimoura.nuchallenge.common.domain.exception.CommunicationException
 import com.github.pedrodimoura.nuchallenge.common.domain.exception.UnknownException
+import com.github.pedrodimoura.nuchallenge.shortener.domain.model.ShortUrlModel
 import com.github.pedrodimoura.nuchallenge.shortener.domain.repository.ShortenerRepository
 import com.github.pedrodimoura.nuchallenge.shortener.presentation.state.ShortenerUIState
 import com.github.pedrodimoura.nuchallenge.shortener.util.TestCoroutineRule
+import io.mockk.Runs
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
+import io.mockk.just
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.After
@@ -17,6 +21,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
+@FlowPreview
 @ExperimentalCoroutinesApi
 class ShortenerViewModelTest {
 
@@ -84,6 +89,33 @@ class ShortenerViewModelTest {
                 assertEquals(ShortenerUIState.Ready, awaitItem())
                 assertEquals(ShortenerUIState.FetchingRecentlyShortenedUrls, awaitItem())
                 assertEquals(ShortenerUIState.Failure("Communication Failure"), awaitItem())
+            }
+        }
+
+    @Test
+    fun `StateFlow SHOULD emit Ready, ShortingUrl and UrlShortened States WHEN short is invoked`() =
+        runBlockingTest {
+            val expectedModel = ShortUrlModel("", "", "")
+            coEvery { shortenerRepository.short(any()) } returns flow { emit(expectedModel) }
+
+            shortenerViewModel.uiState.test {
+                shortenerViewModel.short("http://www.google.com.br/")
+                assertEquals(ShortenerUIState.Ready, awaitItem())
+                assertEquals(ShortenerUIState.ShortingUrl, awaitItem())
+                assertEquals(ShortenerUIState.UrlShorted(expectedModel), awaitItem())
+            }
+        }
+
+    @Test
+    fun `StateFlow SHOULD emit Ready, SavingShortenedUrl and ShortenedUrlSaved States WHEN short is invoked`() =
+        runBlockingTest {
+            coEvery { shortenerRepository.save(any()) } just Runs
+
+            shortenerViewModel.uiState.test {
+                shortenerViewModel.save(ShortUrlModel("abc", "abc", "abc"))
+                assertEquals(ShortenerUIState.Ready, awaitItem())
+                assertEquals(ShortenerUIState.SavingShortenedUrl, awaitItem())
+                assertEquals(ShortenerUIState.ShortenedUrlSaved, awaitItem())
             }
         }
 }

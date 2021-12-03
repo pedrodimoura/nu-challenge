@@ -6,14 +6,44 @@
     android:layout_height="match_parent"
     tools:context=".shortener.presentation.activity.ShortenerActivity">
 
+    <EditText
+        android:id="@+id/editTextUrlToShort"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="4dp"
+        android:hint="@string/shortener_edit_text_hint"
+        android:inputType="textUri"
+        app:layout_constraintEnd_toStartOf="@id/btnShortUrl"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintHorizontal_weight="3"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="Autofill" />
+
     <Button
         android:id="@+id/btnShortUrl"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="16dp"
+        android:text="@string/short_action"
+        app:layout_constraintBottom_toBottomOf="@id/editTextUrlToShort"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintStart_toEndOf="@id/editTextUrlToShort"
+        app:layout_constraintTop_toTopOf="@id/editTextUrlToShort" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvRecentlyShortenedUrls"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/editTextUrlToShort" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -11,7 +11,11 @@ sealed class ShortenerUIState {
     ) : ShortenerUIState()
 
     object ShortingUrl : ShortenerUIState()
-    object UrlShorted : ShortenerUIState()
+
+    data class UrlShorted(val shortUrlModel: ShortUrlModel) : ShortenerUIState()
+
+    object SavingShortenedUrl : ShortenerUIState()
+    object ShortenedUrlSaved : ShortenerUIState()
 
     data class Failure(val message: String) : ShortenerUIState()
 }

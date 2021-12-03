@@ -11,7 +11,7 @@ import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
-object DataModule {
+object DataDependencyModule {
 
     @Provides
     fun providesAppDatabase(
