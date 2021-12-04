@@ -69,7 +69,9 @@ class ShortenerActivity : AppCompatActivity() {
     }
 
     private fun showRecentlyShortenedUrlsOnUI(recentlyShortenedUrls: List<ShortUrlModel>) =
-        shortenedUrlsAdapter.submitList(recentlyShortenedUrls)
+        shortenedUrlsAdapter.submitList(recentlyShortenedUrls) {
+            binding.rvRecentlyShortenedUrls.scrollToPosition(0)
+        }
 
     private fun setStateToBusy() {
         binding.pb.isVisible = true
