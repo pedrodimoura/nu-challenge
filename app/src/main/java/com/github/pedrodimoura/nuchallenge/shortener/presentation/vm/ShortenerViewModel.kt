@@ -34,7 +34,7 @@ class ShortenerViewModel @Inject constructor(
 
     fun getRecentlyShortenedUrls() {
         viewModelScope.launch {
-            shortenerRepository.getRecentShortenUrls()
+            shortenerRepository.getRecentlyShortenedUrls()
                 .flowOn(dispatcher)
                 .onStart { _uiState.value = ShortenerUIState.FetchingRecentlyShortenedUrls }
                 .catch {

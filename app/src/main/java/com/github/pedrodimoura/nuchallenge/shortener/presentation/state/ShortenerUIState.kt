@@ -7,7 +7,7 @@ sealed class ShortenerUIState {
 
     object FetchingRecentlyShortenedUrls : ShortenerUIState()
     data class RecentlyShortenedUrlsFetched(
-        val recentlyShortened: List<ShortUrlModel>
+        val recentlyShortenedUrls: List<ShortUrlModel>
     ) : ShortenerUIState()
 
     object ShortingUrl : ShortenerUIState()

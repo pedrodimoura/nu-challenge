@@ -9,6 +9,7 @@ import com.github.pedrodimoura.nuchallenge.shortener.data.datasource.remote.mode
 import com.github.pedrodimoura.nuchallenge.shortener.domain.model.ShortUrlModel
 import com.github.pedrodimoura.nuchallenge.shortener.domain.repository.ShortenerRepository
 import java.io.IOException
+import java.util.*
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -30,13 +31,14 @@ class ShortenerRepositoryImpl @Inject constructor(
                 ShortUrlLocalModel(
                     shortUrlModel.alias,
                     shortUrlModel.originalUrl,
-                    shortUrlModel.shortUrl
+                    shortUrlModel.shortUrl,
+                    Date().time
                 )
             )
         }.onFailure { handleShortenerRepositoryException(it) }
     }
 
-    override suspend fun getRecentShortenUrls(): Flow<List<ShortUrlModel>> =
+    override suspend fun getRecentlyShortenedUrls(): Flow<List<ShortUrlModel>> =
         shortenerLocalDatasource.getRecentlyShortenedUrls().map {
             it.map { shortUrlLocalModel -> shortUrlLocalModel.toDomain() }
         }.catch { handleShortenerRepositoryException(it) }

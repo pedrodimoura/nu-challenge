@@ -3,4 +3,5 @@
     <string name="shortener_edit_text_hint">https://&#8230;</string>
     <string name="short_action">Short</string>
     <string name="shortener_wrong_url_format">Invalid URL format</string>
+    <string name="sent_to_clipboard">Sent to clipboard</string>
 </resources>

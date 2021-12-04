@@ -16,4 +16,5 @@ data class ShortUrlLocalModel(
     val alias: String,
     val originalUrl: String,
     val shortUrl: String,
+    val createdAt: Long,
 )

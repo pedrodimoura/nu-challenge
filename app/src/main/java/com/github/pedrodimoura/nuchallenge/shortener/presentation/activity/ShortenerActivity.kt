@@ -1,20 +1,26 @@
 package com.github.pedrodimoura.nuchallenge.shortener.presentation.activity
 
 import android.os.Bundle
-import android.util.Log
 import android.util.Patterns
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.lifecycle.asLiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.pedrodimoura.nuchallenge.R
+import com.github.pedrodimoura.nuchallenge.common.presentation.ext.copyPlainTextToClipboard
+import com.github.pedrodimoura.nuchallenge.common.presentation.ext.disableTouchEvents
+import com.github.pedrodimoura.nuchallenge.common.presentation.ext.enableTouchEvents
 import com.github.pedrodimoura.nuchallenge.common.presentation.ext.hideKeyboard
 import com.github.pedrodimoura.nuchallenge.databinding.ActivityShortenerBinding
+import com.github.pedrodimoura.nuchallenge.shortener.domain.model.ShortUrlModel
 import com.github.pedrodimoura.nuchallenge.shortener.presentation.adapter.ShortenedUrlsAdapter
 import com.github.pedrodimoura.nuchallenge.shortener.presentation.state.ShortenerUIState
 import com.github.pedrodimoura.nuchallenge.shortener.presentation.vm.ShortenerViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.FlowPreview
+
+private const val CB_LABEL_SHORT_URL = "Shortened Url"
 
 @FlowPreview
 @AndroidEntryPoint
@@ -47,22 +53,38 @@ class ShortenerActivity : AppCompatActivity() {
     private fun observeStateChanges() {
         viewModel.uiState.asLiveData().observe(this) { uiState ->
             when (uiState) {
-                is ShortenerUIState.FetchingRecentlyShortenedUrls -> logcat("Loading")
+                is ShortenerUIState.FetchingRecentlyShortenedUrls,
+                is ShortenerUIState.ShortingUrl,
+                is ShortenerUIState.SavingShortenedUrl -> setStateToBusy()
                 is ShortenerUIState.RecentlyShortenedUrlsFetched -> {
-                    logcat("Success: ${uiState.recentlyShortened}")
-                    shortenedUrlsAdapter.submitList(uiState.recentlyShortened)
+                    showRecentlyShortenedUrlsOnUI(uiState.recentlyShortenedUrls)
+                    setStateToIdle()
                 }
-                is ShortenerUIState.Failure -> logcat("Failure ${uiState.message}")
-                is ShortenerUIState.ShortingUrl -> logcat("Shorting Url")
+                is ShortenerUIState.Failure -> setStateToIdle()
                 is ShortenerUIState.UrlShorted -> viewModel.save(uiState.shortUrlModel)
-                is ShortenerUIState.ShortenedUrlSaved -> logcat("Shortened Url Saved")
-                is ShortenerUIState.SavingShortenedUrl -> logcat("Saving shortened Url")
-                else -> logcat("Idle State")
+                is ShortenerUIState.ShortenedUrlSaved -> setStateToIdle()
+                else -> setStateToIdle()
             }
         }
     }
 
+    private fun showRecentlyShortenedUrlsOnUI(recentlyShortenedUrls: List<ShortUrlModel>) =
+        shortenedUrlsAdapter.submitList(recentlyShortenedUrls)
+
+    private fun setStateToBusy() {
+        binding.pb.isVisible = true
+        disableTouchEvents()
+    }
+
+    private fun setStateToIdle() {
+        binding.pb.isVisible = false
+        enableTouchEvents()
+    }
+
     private fun setupListeners() {
+        shortenedUrlsAdapter.onItemSelected { shortUrl ->
+            copyPlainTextToClipboard(CB_LABEL_SHORT_URL, shortUrl)
+        }
         binding.btnShortUrl.setOnClickListener {
             hideKeyboard()
             with(binding.editTextUrlToShort) {
@@ -77,6 +99,4 @@ class ShortenerActivity : AppCompatActivity() {
     }
 
     private fun getRecentlyShortenedUrls() = viewModel.getRecentlyShortenedUrls()
-
-    private fun logcat(message: String) = Log.d("nu_chg", message)
 }

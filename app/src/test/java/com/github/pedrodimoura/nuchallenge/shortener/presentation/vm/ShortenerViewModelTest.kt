@@ -49,7 +49,7 @@ class ShortenerViewModelTest {
     @Test
     fun `StateFlow SHOULD emit Ready, FetchingRecentlyShortenedUrls and RecentlyShortenedUrlsFetched States WHEN getRecentShortenedUrls is invoked`() =
         runBlockingTest {
-            coEvery { shortenerRepository.getRecentShortenUrls() } returns flow { emit(emptyList()) }
+            coEvery { shortenerRepository.getRecentlyShortenedUrls() } returns flow { emit(emptyList()) }
 
             shortenerViewModel.uiState.test {
                 shortenerViewModel.getRecentlyShortenedUrls()
@@ -66,7 +66,7 @@ class ShortenerViewModelTest {
     fun `StateFlow SHOULD emit Ready, FetchingRecentlyShortenedUrls and Failure States WHEN getRecentShortenedUrls throws UnknownException`() =
         runBlockingTest {
             coEvery {
-                shortenerRepository.getRecentShortenUrls()
+                shortenerRepository.getRecentlyShortenedUrls()
             } returns flow { throw UnknownException() }
 
             shortenerViewModel.uiState.test {
@@ -81,7 +81,7 @@ class ShortenerViewModelTest {
     fun `StateFlow SHOULD emit Ready, FetchingRecentlyShortenedUrls and Failure States WHEN getRecentShortenedUrls throws CommunicationException`() =
         runBlockingTest {
             coEvery {
-                shortenerRepository.getRecentShortenUrls()
+                shortenerRepository.getRecentlyShortenedUrls()
             } returns flow { throw CommunicationException() }
 
             shortenerViewModel.uiState.test {

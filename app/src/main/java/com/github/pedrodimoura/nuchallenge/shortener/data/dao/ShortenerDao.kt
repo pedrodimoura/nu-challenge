@@ -13,6 +13,6 @@ interface ShortenerDao {
     @Insert(entity = ShortUrlLocalModel::class, onConflict = OnConflictStrategy.REPLACE)
     suspend fun save(shortenedUrlLocalModel: ShortUrlLocalModel)
 
-    @Query("SELECT * FROM short_url")
+    @Query("SELECT * FROM short_url ORDER BY createdAt DESC")
     fun getRecentlyShortenedUrls(): Flow<List<ShortUrlLocalModel>>
 }

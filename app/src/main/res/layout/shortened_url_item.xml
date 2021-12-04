@@ -8,6 +8,7 @@
     android:focusable="true"
     android:foreground="?selectableItemBackground"
     android:orientation="vertical"
+    android:padding="16dp"
     tools:ignore="UnusedAttribute">
 
     <TextView
@@ -24,6 +25,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="8dp"
-        tools:text="bit.ly/1A4ded" />
+        tools:text="Alias: 72073" />
 
 </androidx.appcompat.widget.LinearLayoutCompat>
