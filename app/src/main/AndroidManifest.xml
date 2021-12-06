@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.github.pedrodimoura.nuchallenge">
+    package="com.github.knutwhitemane.nuchallenge">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:name=".app.NuChallengeApplication"
+        android:name="com.github.knutwhitemane.nuchallenge.app.NuChallengeApplication"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NuChallenge">
         <activity
-            android:name=".shortener.presentation.activity.ShortenerActivity"
+            android:name="com.github.knutwhitemane.nuchallenge.shortener.presentation.activity.ShortenerActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

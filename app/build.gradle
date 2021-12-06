@@ -9,12 +9,12 @@ android {
     compileSdk 31
 
     defaultConfig {
-        applicationId "com.github.pedrodimoura.nuchallenge"
+        applicationId "com.github.knutwhitemane.nuchallenge"
         minSdk 21
         targetSdk 31
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "com.github.pedrodimoura.nuchallenge.common.HiltAndroidRunner"
+        testInstrumentationRunner "com.github.knutwhitemane.nuchallenge.common.HiltAndroidRunner"
     }
 
     buildFeatures {
