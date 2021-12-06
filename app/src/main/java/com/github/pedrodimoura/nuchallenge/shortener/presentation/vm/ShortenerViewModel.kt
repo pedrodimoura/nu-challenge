@@ -9,14 +9,16 @@ import com.github.pedrodimoura.nuchallenge.shortener.presentation.state.Shortene
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
@@ -40,7 +42,10 @@ class ShortenerViewModel @Inject constructor(
                 .catch {
                     _uiState.value = ShortenerUIState.Failure(it.message.orEmpty())
                 }
-                .collect { _uiState.value = ShortenerUIState.RecentlyShortenedUrlsFetched(it) }
+                .collect {
+                    _uiState.value = ShortenerUIState.RecentlyShortenedUrlsFetched(it)
+                    _uiState.value = ShortenerUIState.Ready
+                }
         }
     }
 
@@ -50,7 +55,6 @@ class ShortenerViewModel @Inject constructor(
                 .flowOn(dispatcher)
                 .onStart { _uiState.value = ShortenerUIState.ShortingUrl }
                 .catch { _uiState.value = ShortenerUIState.Failure(it.message.orEmpty()) }
-                .flowOn(Dispatchers.Main)
                 .collect { _uiState.value = ShortenerUIState.UrlShorted(it) }
         }
     }
@@ -61,6 +65,8 @@ class ShortenerViewModel @Inject constructor(
                 .flowOn(dispatcher)
                 .onStart { _uiState.value = ShortenerUIState.SavingShortenedUrl }
                 .catch { _uiState.value = ShortenerUIState.Failure(it.message.orEmpty()) }
+                .onCompletion { _uiState.value = ShortenerUIState.Ready }
+                .onEach { delay(5000) }
                 .collect { _uiState.value = ShortenerUIState.ShortenedUrlSaved }
         }
     }
