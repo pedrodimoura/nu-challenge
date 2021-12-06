@@ -34,10 +34,17 @@ android {
             buildConfigField "String", "BASE_URL", "\"https://url-shortener-nu.herokuapp.com/api/\""
         }
         debug {
+            applicationIdSuffix ".debug"
             minifyEnabled false
+            debuggable true
             buildConfigField "String", "BASE_URL", "\"https://url-shortener-nu.herokuapp.com/api/\""
         }
+        mock {
+            initWith debug
+            applicationIdSuffix ".mock"
+        }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
