@@ -2,6 +2,7 @@ package com.github.pedrodimoura.nuchallenge.shortener.presentation.activity
 
 import android.os.Bundle
 import android.util.Patterns
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
@@ -56,17 +57,18 @@ class ShortenerActivity : AppCompatActivity() {
                 is ShortenerUIState.FetchingRecentlyShortenedUrls,
                 is ShortenerUIState.ShortingUrl,
                 is ShortenerUIState.SavingShortenedUrl -> setStateToBusy()
-                is ShortenerUIState.RecentlyShortenedUrlsFetched -> {
+                is ShortenerUIState.RecentlyShortenedUrlsFetched ->
                     showRecentlyShortenedUrlsOnUI(uiState.recentlyShortenedUrls)
-                    setStateToIdle()
-                }
-                is ShortenerUIState.Failure -> setStateToIdle()
+                is ShortenerUIState.Failure ->
+                    Toast.makeText(this, uiState.message, Toast.LENGTH_SHORT).show()
                 is ShortenerUIState.UrlShorted -> viewModel.save(uiState.shortUrlModel)
-                is ShortenerUIState.ShortenedUrlSaved -> setStateToIdle()
+                is ShortenerUIState.ShortenedUrlSaved -> clearInput()
                 else -> setStateToIdle()
             }
         }
     }
+
+    private fun clearInput() = binding.editTextUrlToShort.setText("")
 
     private fun showRecentlyShortenedUrlsOnUI(recentlyShortenedUrls: List<ShortUrlModel>) =
         shortenedUrlsAdapter.submitList(recentlyShortenedUrls) {
