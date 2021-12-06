@@ -9,8 +9,8 @@ import com.github.pedrodimoura.nuchallenge.shortener.presentation.state.Shortene
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
@@ -39,11 +38,12 @@ class ShortenerViewModel @Inject constructor(
             shortenerRepository.getRecentlyShortenedUrls()
                 .flowOn(dispatcher)
                 .onStart { _uiState.value = ShortenerUIState.FetchingRecentlyShortenedUrls }
-                .catch {
-                    _uiState.value = ShortenerUIState.Failure(it.message.orEmpty())
+                .catch { throwable ->
+                    _uiState.value = ShortenerUIState.Failure(throwable.message.orEmpty())
                 }
-                .collect {
-                    _uiState.value = ShortenerUIState.RecentlyShortenedUrlsFetched(it)
+                .flowOn(Dispatchers.Main)
+                .collect { shortUrlModels ->
+                    _uiState.value = ShortenerUIState.RecentlyShortenedUrlsFetched(shortUrlModels)
                     _uiState.value = ShortenerUIState.Ready
                 }
         }
@@ -54,8 +54,13 @@ class ShortenerViewModel @Inject constructor(
             shortenerRepository.short(url)
                 .flowOn(dispatcher)
                 .onStart { _uiState.value = ShortenerUIState.ShortingUrl }
-                .catch { _uiState.value = ShortenerUIState.Failure(it.message.orEmpty()) }
-                .collect { _uiState.value = ShortenerUIState.UrlShorted(it) }
+                .catch { throwable ->
+                    _uiState.value = ShortenerUIState.Failure(throwable.message.orEmpty())
+                    _uiState.value = ShortenerUIState.Ready
+                }
+                .collect { shortUrlModel ->
+                    _uiState.value = ShortenerUIState.UrlShorted(shortUrlModel)
+                }
         }
     }
 
@@ -64,9 +69,10 @@ class ShortenerViewModel @Inject constructor(
             flowOf(shortenerRepository.save(shortUrlModel))
                 .flowOn(dispatcher)
                 .onStart { _uiState.value = ShortenerUIState.SavingShortenedUrl }
-                .catch { _uiState.value = ShortenerUIState.Failure(it.message.orEmpty()) }
+                .catch { throwable ->
+                    _uiState.value = ShortenerUIState.Failure(throwable.message.orEmpty())
+                }
                 .onCompletion { _uiState.value = ShortenerUIState.Ready }
-                .onEach { delay(5000) }
                 .collect { _uiState.value = ShortenerUIState.ShortenedUrlSaved }
         }
     }

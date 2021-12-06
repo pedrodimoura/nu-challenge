@@ -47,7 +47,7 @@ class ShortenerViewModelTest {
         }
 
     @Test
-    fun `StateFlow SHOULD emit Ready, FetchingRecentlyShortenedUrls and RecentlyShortenedUrlsFetched States WHEN getRecentShortenedUrls is invoked`() =
+    fun `StateFlow SHOULD emit Ready, FetchingRecentlyShortenedUrls, RecentlyShortenedUrlsFetched and Ready States WHEN getRecentShortenedUrls is invoked`() =
         runBlockingTest {
             coEvery { shortenerRepository.getRecentlyShortenedUrls() } returns flow { emit(emptyList()) }
 
@@ -59,6 +59,7 @@ class ShortenerViewModelTest {
                     ShortenerUIState.RecentlyShortenedUrlsFetched(emptyList()),
                     awaitItem()
                 )
+                assertEquals(ShortenerUIState.Ready, awaitItem())
             }
         }
 
@@ -107,7 +108,7 @@ class ShortenerViewModelTest {
         }
 
     @Test
-    fun `StateFlow SHOULD emit Ready, SavingShortenedUrl and ShortenedUrlSaved States WHEN short is invoked`() =
+    fun `StateFlow SHOULD emit Ready, SavingShortenedUrl, ShortenedUrlSaved and Ready States WHEN short is invoked`() =
         runBlockingTest {
             coEvery { shortenerRepository.save(any()) } just Runs
 
@@ -116,6 +117,7 @@ class ShortenerViewModelTest {
                 assertEquals(ShortenerUIState.Ready, awaitItem())
                 assertEquals(ShortenerUIState.SavingShortenedUrl, awaitItem())
                 assertEquals(ShortenerUIState.ShortenedUrlSaved, awaitItem())
+                assertEquals(ShortenerUIState.Ready, awaitItem())
             }
         }
 }
