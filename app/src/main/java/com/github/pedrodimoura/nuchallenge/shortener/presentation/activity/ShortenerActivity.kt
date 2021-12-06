@@ -2,7 +2,6 @@ package com.github.pedrodimoura.nuchallenge.shortener.presentation.activity
 
 import android.os.Bundle
 import android.util.Patterns
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
@@ -18,6 +17,7 @@ import com.github.pedrodimoura.nuchallenge.shortener.domain.model.ShortUrlModel
 import com.github.pedrodimoura.nuchallenge.shortener.presentation.adapter.ShortenedUrlsAdapter
 import com.github.pedrodimoura.nuchallenge.shortener.presentation.state.ShortenerUIState
 import com.github.pedrodimoura.nuchallenge.shortener.presentation.vm.ShortenerViewModel
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.FlowPreview
 
@@ -59,8 +59,7 @@ class ShortenerActivity : AppCompatActivity() {
                 is ShortenerUIState.SavingShortenedUrl -> setStateToBusy()
                 is ShortenerUIState.RecentlyShortenedUrlsFetched ->
                     showRecentlyShortenedUrlsOnUI(uiState.recentlyShortenedUrls)
-                is ShortenerUIState.Failure ->
-                    Toast.makeText(this, uiState.message, Toast.LENGTH_SHORT).show()
+                is ShortenerUIState.Failure -> showSnackbar(uiState.message)
                 is ShortenerUIState.UrlShorted -> viewModel.save(uiState.shortUrlModel)
                 is ShortenerUIState.ShortenedUrlSaved -> clearInput()
                 else -> setStateToIdle()
@@ -88,6 +87,7 @@ class ShortenerActivity : AppCompatActivity() {
     private fun setupListeners() {
         shortenedUrlsAdapter.onItemSelected { shortUrl ->
             copyPlainTextToClipboard(CB_LABEL_SHORT_URL, shortUrl)
+            showSnackbar(getString(R.string.sent_to_clipboard))
         }
         binding.btnShortUrl.setOnClickListener {
             hideKeyboard()
@@ -103,4 +103,8 @@ class ShortenerActivity : AppCompatActivity() {
     }
 
     private fun getRecentlyShortenedUrls() = viewModel.getRecentlyShortenedUrls()
+
+    private fun showSnackbar(message: String) {
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
+    }
 }

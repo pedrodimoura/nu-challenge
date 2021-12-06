@@ -14,12 +14,15 @@ android {
         targetSdk 31
         versionCode 1
         versionName "1.0"
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "com.github.pedrodimoura.nuchallenge.common.HiltAndroidRunner"
     }
 
     buildFeatures {
         viewBinding true
+    }
+
+    sourceSets {
+        getByName("androidTest").assets.srcDirs("src/debug/assets")
     }
 
     compileOptions {
@@ -38,10 +41,16 @@ android {
             buildConfigField "String", "BASE_URL", "\"https://url-shortener-nu.herokuapp.com/api/\""
         }
     }
+
+    testOptions {
+        animationsDisabled true
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = '1.8'
     }
@@ -76,12 +85,19 @@ dependencies {
     implementation platform('com.squareup.okhttp3:okhttp-bom:4.9.3')
     implementation 'com.squareup.okhttp3:okhttp'
     implementation 'com.squareup.okhttp3:logging-interceptor'
-    testImplementation 'com.squareup.okhttp3:mockwebserver'
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'io.mockk:mockk:1.12.0'
     testImplementation 'app.cash.turbine:turbine:0.7.0'
     testImplementation 'androidx.arch.core:core-testing:2.1.0'
+
+    androidTestImplementation platform('com.squareup.okhttp3:okhttp-bom:4.9.3')
+    androidTestImplementation 'com.squareup.okhttp3:mockwebserver'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    androidTestImplementation 'com.google.dagger:hilt-android-testing:2.40.4'
+    kaptAndroidTest 'com.google.dagger:hilt-android-compiler:2.40.4'
+    androidTestImplementation 'com.jakewharton.espresso:okhttp3-idling-resource:1.0.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.4.0'
+    androidTestImplementation 'androidx.test:core-ktx:1.4.0'
 }

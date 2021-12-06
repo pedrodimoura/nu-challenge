@@ -1,0 +1,7 @@
+{
+  "alias": "1234",
+  "_links": {
+    "self": "www.google.com",
+    "short": "http://nushort/1234"
+  }
+}
